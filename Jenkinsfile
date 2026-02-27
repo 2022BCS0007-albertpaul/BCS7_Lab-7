@@ -51,7 +51,7 @@ pipeline {
 
                 echo "Valid Response: $response"
 
-                echo "$response" | grep -q "wine_quality" || exit 1
+                echo "$response" | grep -q "prediction" || exit 1
                 echo "Valid input test passed"
                 '''
             }
@@ -78,8 +78,8 @@ pipeline {
         stage('Stop Container') {
             steps {
                 sh '''
-                docker stop $CONTAINER
-                docker rm $CONTAINER
+                docker stop $CONTAINER || true
+                docker rm $CONTAINER || true
                 '''
             }
         }
