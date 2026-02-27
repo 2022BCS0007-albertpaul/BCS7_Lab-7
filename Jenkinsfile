@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE = "albertpaulbcs7/lab6-model:latest"
         CONTAINER = "lab7-test-container"
-        PORT = "8000"
+        PORT = "5000"
     }
 
     stages {
@@ -19,7 +19,7 @@ pipeline {
             steps {
                 sh '''
                 docker rm -f $CONTAINER || true
-                docker run -d -p $PORT:8000 --name $CONTAINER $IMAGE
+                docker run -d -p $PORT:5000 --name $CONTAINER $IMAGE
                 '''
             }
         }
@@ -28,8 +28,9 @@ pipeline {
             steps {
                 sh '''
                 timeout=30
-                until curl -s -o /dev/null -w "%{http_code}" http://host.docker.internal:$PORT/health | grep -q 200; do
-                    if [ $timeout -le- 0 ]; then
+                until curl -s -o /dev/null -w "%{http_code}" http://host.docker.internal:$PORT/health | grep -q 200
+                do
+                    if [ $timeout -le 0 ]; then
                         echo "API did not start"
                         exit 1
                     fi
@@ -50,7 +51,8 @@ pipeline {
 
                 echo "Valid Response: $response"
 
-                echo $response | jq '.wine_quality' > /dev/null || exit 1
+                echo "$response" | grep -q "wine_quality" || exit 1
+                echo "Valid input test passed"
                 '''
             }
         }
